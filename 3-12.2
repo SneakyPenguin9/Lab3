@@ -1,0 +1,88 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+class Address {
+private:
+	string firstName, lastName, buildingNumber, street, city, phoneNumber;
+public:
+	Address(const string& fn, const string& ln, const string& bn, const string& st, const string& c, const string& pn) :firstName(fn), lastName(ln), buildingNumber(bn), street(st), city(c), phoneNumber(pn) {}
+	string getFirstName()const { return firstName; }
+	string getLastName()const { return lastName; }
+	string getBuildingNumber()const { return buildingNumber; }
+	string getStreet()const { return street; }
+	string getCity()const { return city; }
+	string getPhoneNumber()const { return phoneNumber; }
+	Address setFirstName(const string& fn) { firstName = fn; return *this; }
+	Address setLastName(const string& ln) { lastName = ln; return *this; }
+	Address setBuildingNumber(const string& bn) { buildingNumber = bn; return *this; }
+	Address setStreet(const string& st) { street = st; return *this; }
+	Address setCity(const string& c) { city = c; return *this; }
+	Address setPhoneNumber(const string& pn) { phoneNumber = pn; return *this; }
+
+
+
+};
+
+class Record {
+private:
+	Address data;
+	Record* next;
+public:
+	Record(Address d) :data(d) {}
+	Address* getData() { return &data; }
+	Record* getNext() { return next; }
+	Record setData(const Address& d) { data = d; return *this; }
+	Record setNext(Record* n) { next = n; return *this; }
+
+};
+
+class AddressBook {
+private:
+	Record* book = NULL;
+public:
+	Record* getBook() { return book; }
+	AddressBook setBook(Record* b) { book = b; return *this; }
+	AddressBook readFile(const string& file);
+};
+
+string properCase(string input);
+bool die(const string& msg);
+
+int main() {
+
+}
+
+AddressBook AddressBook::readFile(const string& file) {
+	Record* current = book;
+	bool beginningNode = true;
+	ifstream f(file);
+	string firstName, lastName, buildingNumber, street, city, phoneNumber;
+	if (!f.is_open()) { die("file not open"); }
+	while (f >> firstName >> lastName >> buildingNumber >> street >> city >> phoneNumber) {
+		firstName = properCase(firstName); lastName = properCase(lastName);
+		if (beginningNode) {
+			current = new Record(Address(firstName, lastName, buildingNumber, street, city, phoneNumber));
+			beginningNode = false;
+		}
+		else {
+			current->setNext(new Record(Address(firstName, lastName, buildingNumber, street, city, phoneNumber)));
+			current = current->getNext();
+		}
+	}
+}
+
+string properCase(string input) {
+	string temp = "";
+	for (size_t i = 0; i < input.length(); i++) {
+		temp += toupper(input[i]);
+	}
+	return temp;
+}
+
+bool die(const string& msg) {
+	cout << "error: " << msg << endl;
+	exit(EXIT_FAILURE);
+}
